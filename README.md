@@ -46,7 +46,7 @@ export GOOGLE_CSE_ID=
 export VAIS_DATA_STORE_ID=
 ```
 
-## 認証情報の設定
+## Google Cloud 認証情報の設定
 
 ```bash
 mkdir -p $HOME/.config/gcloud/
