@@ -65,11 +65,24 @@ cat ${GOOGLE_APPLICATION_CREDENTIALS} | jq .
 ```bash
 export GOOGLE_GENAI_USE_VERTEXAI=True
 export GOOGLE_CLOUD_PROJECT=$( gcloud config get-value project )
+export GOOGLE_CLOUD_LOCATION=us-central1
 export GOOGLE_APPLICATION_CREDENTIALS=$HOME/.config/gcloud/application_default_credentials.json
 ```
 
-## 各 API の挙動確認
+## 各ツール API の挙動確認
 
 ```bash
 python tools.py "Vertex AI Search 検索ワード" "Google 検索ワード"
+```
+
+## ADK 検証用 Web の起動
+
+```bash
+adk web
+```
+
+## Web アプリケーションの起動
+
+```
+GEMINI_MODEL=gemini-2.0-flash-live-preview-04-09 uvicorn main:app --reload
 ```

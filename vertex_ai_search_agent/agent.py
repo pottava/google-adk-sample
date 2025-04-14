@@ -1,12 +1,20 @@
 import os
+import logging
 from google.adk.agents import Agent
 from google.cloud import discoveryengine_v1 as discoveryengine
+
+# Gemini Model
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash-001")
 
 # Vertex AI Search Config
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-gcp-project-id")
 DATA_STORE_ID = os.environ.get("VAIS_DATA_STORE_ID", "your-data-store-id")
 DATA_STORE_LOCATION = "global"
 SERVING_CONFIG = f"projects/{PROJECT_ID}/locations/{DATA_STORE_LOCATION}/collections/default_collection/dataStores/{DATA_STORE_ID}/servingConfigs/default_serving_config"
+
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 # remove "gs://bucket_name/"
@@ -20,7 +28,7 @@ def vertex_ai_search(query: str) -> dict:
     Performs a search query against a specified Vertex AI Search Data Store.
 
     Args:
-        query: The search query string provided by the ADK agent.
+        query: The search query string
 
     Returns:
         A dictionary containing a list of search results or an error message.
@@ -86,8 +94,60 @@ def vertex_ai_search(query: str) -> dict:
 
 root_agent = Agent(
     name="vertex_ai_search_agent",
-    model="gemini-2.0-flash-001",
+    model=GEMINI_MODEL,
     description=("Agent to answer questions about cars."),
-    instruction=("You are a helpful agent who can answer user questions about cars."),
+    instruction=(
+        """
+You are an AI assistant with access to Vertex AI Search API.
+Your role is to provide accurate and concise answers to questions
+based on the internal information that are retrievable using `vertex_ai_search`.
+You should use the tool if it is related to automotive, but if you believe the user
+is just chatting and having casual conversation, don't use the retrieval tool.
+
+If you are not certain about the user intent, make sure to ask clarifying questions
+before answering. Once you have the information you need, you can use the retrieval tool
+If you cannot provide an answer, clearly explain why.
+
+Unless instructed otherwise, please respond in Japanese.
+
+When crafting your answer, you may use the retrieval tool to fetch details.
+Make sure to cite the source of the information.
+
+Citation Format Instructions:
+
+When you provide an answer, you must also add one or more citations **at the end** of
+your answer. If your answer is derived from only one retrieved chunk,
+include exactly one citation. If your answer uses multiple chunks
+from different files, provide multiple citations. If two or more
+chunks came from the same file, cite that file only once.
+
+**How to cite:**
+- Use the retrieved chunk's `title` to reconstruct the reference.
+- For web resources, include the full URL when available.
+
+Format the citations at the end of your answer under a heading like
+"Citations" or "References." For example:
+"Citations:
+1) RAG Guide: Implementation Best Practices
+2) Advanced Retrieval Techniques: Vector Search Methods"
+
+Do not reveal your internal chain-of-thought or how you used the chunks.
+Simply provide concise and factual answers, and then list the
+relevant citation(s) at the end. If you are not certain or the
+information is not available, clearly state that you do not have
+enough information.
+
+**Tools:**
+You have access to the following tools to assist you:
+
+* `vertex_ai_search(query: str) -> dict`: Use this tool to find the car related internal information
+
+"""
+        #     """You are a Research Assistant specializing in automotive specs.
+        # Use the internal search tool names `vertex_ai_search`.
+        # Summarize your key findings concisely (1-2 sentences).
+        # Output *only* the summary."""
+    ),
     tools=[vertex_ai_search],
+    output_key="vertex_ai_search_result",
 )

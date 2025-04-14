@@ -1,7 +1,7 @@
 # tools.py
 # Contains custom tool functions for ADK:
-# - search_google_custom: Searches Google Custom Search API
-# - search_vertex_ai: Searches Vertex AI Search
+# - vertex_ai_search: Vertex AI Search
+# - google_search: Google 検索 API
 
 # --- Prerequisites ---
 # 1. Install necessary Google Cloud & HTTP client libraries:
@@ -25,15 +25,15 @@ if __name__ == "__main__":
     test_query_vertex = args[1]
     test_query_google = args[2]
 
-    # --- Test Vertex AI Search ---
-    print(f"\n--- Testing Vertex AI Search with query: '{test_query_vertex}' ---")
+    # --- Vertex AI Search のテスト ---
+    print(f"\n--- Vertex AI Search 検索クエリ: '{test_query_vertex}' ---")
     vertex_result = vertex_ai_search(test_query_vertex)
 
     if "error" in vertex_result:
-        print(f"Search failed: {vertex_result['error']}")
+        print(f"検索失敗: {vertex_result['error']}")
 
     elif vertex_result.get("results"):
-        print("--- Vertex AI Search Results ---")
+        print("--- Vertex AI Search 結果 ---")
         for i, res in enumerate(vertex_result["results"]):
             print(f"{i+1}. URL: {res.get('url')}")
             # print(f"   Answer: {res.get('answer')}")
@@ -41,21 +41,21 @@ if __name__ == "__main__":
             print(f"   Snippet: {res.get('snippet')}")
             print("-" * 10)
     else:
-        print("No Vertex AI results found.")
+        print("Vertex AI Search 検索結果がありません.")
 
-    # --- Test Google Custom Search ---
-    print(f"\n--- Testing Google Custom Search with query: '{test_query_google}' ---")
+    # --- Google 検索 API のテスト ---
+    print(f"\n--- Google 検索クエリ: '{test_query_google}' ---")
     google_result = google_search(test_query_google)
 
     if "error" in google_result:
-        print(f"Search failed: {google_result['error']}")
+        print(f"検索失敗: {vertex_result['error']}")
 
     elif google_result.get("results"):
-        print("--- Google Custom Search Results ---")
+        print("--- Google 検索結果 ---")
         for i, res in enumerate(google_result["results"]):
             print(f"{i+1}. Title: {res.get('title')}")
             print(f"   URL: {res.get('url')}")
             print(f"   Snippet: {res.get('snippet')}")
             print("-" * 10)
     else:
-        print("No Google Custom Search results found.")
+        print("Google 検索結果がありません.")
